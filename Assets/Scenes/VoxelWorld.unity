@@ -220,8 +220,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 759a92ee0d2f1774bae564bcdb175774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waterThreshold: 36
-  noiseScale: 0.02
+  waterThreshold: 10
+  biomeNoiseSettings: {fileID: 11400000, guid: 1edb765d2ee58164086277ed24668d76, type: 2}
 --- !u!4 &141978381
 Transform:
   m_ObjectHideFlags: 0

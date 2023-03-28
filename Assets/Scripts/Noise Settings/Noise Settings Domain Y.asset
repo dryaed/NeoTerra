@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64f162be3a3c00f4e89372124a3893d9, type: 3}
-  m_Name: Noise Settings
+  m_Name: Noise Settings Domain Y
   m_EditorClassIdentifier: 
-  noiseZoom: 0
-  octaves: 0
-  offset: {x: 0, y: 0}
+  noiseZoom: 0.02
+  octaves: 4
+  offset: {x: 1233, y: 12313}
   worldOffset: {x: 0, y: 0}
-  persistance: 0
-  redistributionModifier: 0
-  exponent: 0
+  persistence: 0.5
+  redistributionModifier: 1.2
+  exponent: 5
