@@ -17,7 +17,7 @@ public class BiomeGenerator : MonoBehaviour
 
         biomeNoiseSettings.worldOffset = mapSeedOffset;
         int groundPosition = GetSurfaceHeightNoise(data.worldPosition.x + x, data.worldPosition.z + z, data.chunkHeight);
-        for (int y = 0; y < data.chunkHeight; y++)
+        for (int y = data.worldPosition.y; y < data.worldPosition.y + data.chunkHeight; y++)
         {
             Vector3Int blockPos = new Vector3Int(x, y, z);
             startLayerHandler.Handle(data, blockPos, groundPosition, mapSeedOffset);

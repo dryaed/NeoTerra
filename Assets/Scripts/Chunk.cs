@@ -5,54 +5,51 @@ using UnityEngine;
 
 public static class Chunk
 {
-    public static void LoopThroughBlocks(ChunkData chunkData, Action<int, int, int> actionToPerform)
+    public static void LoopThroughTheBlocks(ChunkData chunkData, Action<int, int, int> actionToPerform)
     {
-        for (var i = 0; i < chunkData.blocks.Length; i++)
+        for (int index = 0; index < chunkData.blocks.Length; index++)
         {
-            var position = GetPositionFromIndex(chunkData, i);
+            var position = GetPositionFromIndex(chunkData, index);
             actionToPerform(position.x, position.y, position.z);
         }
     }
 
-    private static Vector3Int GetPositionFromIndex(ChunkData chunkData, int i) // this converts a 1d index into 3d
+    private static Vector3Int GetPositionFromIndex(ChunkData chunkData, int index)
     {
-        var x = i % chunkData.chunkSize;
-        var y = (i / chunkData.chunkSize) % chunkData.chunkHeight;
-        var z = i / (chunkData.chunkSize * chunkData.chunkHeight);
+        int x = index % chunkData.chunkSize;
+        int y = (index / chunkData.chunkSize) % chunkData.chunkHeight;
+        int z = index / (chunkData.chunkSize * chunkData.chunkHeight);
         return new Vector3Int(x, y, z);
     }
 
-    
-    //in the chunk coordinate system
+    //in chunk coordinate system
     private static bool InRange(ChunkData chunkData, int axisCoordinate)
     {
-        return axisCoordinate >= 0 && axisCoordinate < chunkData.chunkSize;
-        
-        /*
-         if (axisCoordinate < 0 || axisCoordinate >= chunkData.chunkSize) return false;
-         return true;        
-         */
+        if (axisCoordinate < 0 || axisCoordinate >= chunkData.chunkSize)
+            return false;
+
+        return true;
     }
 
-    private static bool InRangeHeight(ChunkData chunkData, int yCoordinate)
+    //in chunk coordinate system
+    private static bool InRangeHeight(ChunkData chunkData, int ycoordinate)
     {
-        return yCoordinate >= 0 && yCoordinate < chunkData.chunkHeight;
-        /*
-        if (yCoordinate < 0 || yCoordinate >= chunkData.chunkHeight) return false;
+        if (ycoordinate < 0 || ycoordinate >= chunkData.chunkHeight)
+            return false;
+
         return true;
-        */
     }
 
     public static BlockType GetBlockFromChunkCoordinates(ChunkData chunkData, Vector3Int chunkCoordinates)
     {
         return GetBlockFromChunkCoordinates(chunkData, chunkCoordinates.x, chunkCoordinates.y, chunkCoordinates.z);
     }
-    
+
     public static BlockType GetBlockFromChunkCoordinates(ChunkData chunkData, int x, int y, int z)
     {
         if (InRange(chunkData, x) && InRangeHeight(chunkData, y) && InRange(chunkData, z))
         {
-            var index = GetIndexFromPosition(chunkData, x, y, z);
+            int index = GetIndexFromPosition(chunkData, x, y, z);
             return chunkData.blocks[index];
         }
 
@@ -61,39 +58,39 @@ public static class Chunk
 
     public static void SetBlock(ChunkData chunkData, Vector3Int localPosition, BlockType block)
     {
-        if (InRange(chunkData, localPosition.x) && InRangeHeight(chunkData, localPosition.y) &&
-            InRange(chunkData, localPosition.z))
+        if (InRange(chunkData, localPosition.x) && InRangeHeight(chunkData, localPosition.y) && InRange(chunkData, localPosition.z))
         {
-            var index = GetIndexFromPosition(chunkData, localPosition.x, localPosition.y, localPosition.z);
+            int index = GetIndexFromPosition(chunkData, localPosition.x, localPosition.y, localPosition.z);
             chunkData.blocks[index] = block;
         }
         else
         {
-            throw new Exception("Need to ask World for appropiate chunk");
+            WorldDataHelper.SetBlock(chunkData.worldReference, localPosition, block);
         }
     }
 
-    private static int GetIndexFromPosition(ChunkData chunkData, int x, int y, int z) // 3d to 1d index
+    private static int GetIndexFromPosition(ChunkData chunkData, int x, int y, int z)
     {
         return x + chunkData.chunkSize * y + chunkData.chunkSize * chunkData.chunkHeight * z;
     }
 
     public static Vector3Int GetBlockInChunkCoordinates(ChunkData chunkData, Vector3Int pos)
     {
-        return new Vector3Int()
+        return new Vector3Int
         {
             x = pos.x - chunkData.worldPosition.x,
             y = pos.y - chunkData.worldPosition.y,
             z = pos.z - chunkData.worldPosition.z
         };
     }
-    
+
     public static MeshData GetChunkMeshData(ChunkData chunkData)
     {
         MeshData meshData = new MeshData(true);
 
-        LoopThroughBlocks(chunkData, (x, y, z) => meshData = BlockHelper.GetMeshData(chunkData, x, y, z, meshData, chunkData.blocks[GetIndexFromPosition(chunkData, x, y, z)]));
-        
+        LoopThroughTheBlocks(chunkData, (x, y, z) => meshData = BlockHelper.GetMeshData(chunkData, x, y, z, meshData, chunkData.blocks[GetIndexFromPosition(chunkData, x, y, z)]));
+
+
         return meshData;
     }
 
@@ -106,5 +103,48 @@ public static class Chunk
             z = Mathf.FloorToInt(z / (float)world.chunkSize) * world.chunkSize
         };
         return pos;
+    }
+
+    internal static List<ChunkData> GetEdgeNeighbourChunk(ChunkData chunkData, Vector3Int worldPosition)
+    {
+        Vector3Int chunkPosition = GetBlockInChunkCoordinates(chunkData, worldPosition);
+        List<ChunkData> neighboursToUpdate = new List<ChunkData>();
+        if (chunkPosition.x == 0)
+        {
+            neighboursToUpdate.Add(WorldDataHelper.GetChunkData(chunkData.worldReference, worldPosition - Vector3Int.right));
+        }
+        if (chunkPosition.x == chunkData.chunkSize - 1)
+        {
+            neighboursToUpdate.Add(WorldDataHelper.GetChunkData(chunkData.worldReference, worldPosition + Vector3Int.right));
+        }
+        if (chunkPosition.y == 0)
+        {
+            neighboursToUpdate.Add(WorldDataHelper.GetChunkData(chunkData.worldReference, worldPosition - Vector3Int.up));
+        }
+        if (chunkPosition.y == chunkData.chunkHeight - 1)
+        {
+            neighboursToUpdate.Add(WorldDataHelper.GetChunkData(chunkData.worldReference, worldPosition + Vector3Int.up));
+        }
+        if (chunkPosition.z == 0)
+        {
+            neighboursToUpdate.Add(WorldDataHelper.GetChunkData(chunkData.worldReference, worldPosition - Vector3Int.forward));
+        }
+        if (chunkPosition.z == chunkData.chunkSize - 1)
+        {
+            neighboursToUpdate.Add(WorldDataHelper.GetChunkData(chunkData.worldReference, worldPosition + Vector3Int.forward));
+        }
+        return neighboursToUpdate;
+    }
+
+    internal static bool IsOnEdge(ChunkData chunkData, Vector3Int worldPosition)
+    {
+        Vector3Int chunkPosition = GetBlockInChunkCoordinates(chunkData, worldPosition);
+        if (
+            chunkPosition.x == 0 || chunkPosition.x == chunkData.chunkSize - 1 ||
+            chunkPosition.y == 0 || chunkPosition.y == chunkData.chunkHeight - 1 ||
+            chunkPosition.z == 0 || chunkPosition.z == chunkData.chunkSize - 1
+            )
+            return true;
+        return false;
     }
 }

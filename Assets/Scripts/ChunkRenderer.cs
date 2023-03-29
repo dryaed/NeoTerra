@@ -69,7 +69,7 @@ public class ChunkRenderer : MonoBehaviour
 
     public void UpdateChunk()
     {
-        //RenderMesh(Chunk.GetChunkMeshData(ChunkData));
+        RenderMesh(Chunk.GetChunkMeshData(ChunkData));
     }
 
     public void UpdateChunk(MeshData data) // this is for multithreaded calculations
