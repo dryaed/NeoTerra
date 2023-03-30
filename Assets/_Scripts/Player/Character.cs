@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Character : MonoBehaviour
 {
     [SerializeField]
     private Camera mainCamera;
-    [SerializeField]
-    private PlayerInput playerInput;
+    [FormerlySerializedAs("playerInput")] [SerializeField]
+    private PlayerController playerController;
     [SerializeField]
     private PlayerMovement playerMovement;
 
@@ -28,15 +29,15 @@ public class Character : MonoBehaviour
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
-        playerInput = GetComponent<PlayerInput>();
+        playerController = GetComponent<PlayerController>();
         playerMovement = GetComponent<PlayerMovement>();
         world = FindObjectOfType<World>();
     }
 
     private void Start()
     {
-        playerInput.OnMouseClick += HandleMouseClick;
-        playerInput.OnFly += HandleFlyClick;
+        playerController.OnMouseClick += HandleMouseClick;
+        playerController.OnFly += HandleFlyClick;
     }
 
     private void HandleFlyClick()
@@ -51,22 +52,22 @@ public class Character : MonoBehaviour
             animator.SetFloat("speed", 0);
             animator.SetBool("isGrounded", false);
             animator.ResetTrigger("jump");
-            playerMovement.Fly(playerInput.MovementInput, playerInput.IsJumping, playerInput.RunningPressed);
+            playerMovement.Fly(playerController.MovementInput, playerController.IsJumping, playerController.RunningPressed);
 
         }
         else
         {
             animator.SetBool("isGrounded", playerMovement.IsGrounded);
-            if (playerMovement.IsGrounded && playerInput.IsJumping && isWaiting == false)
+            if (playerMovement.IsGrounded && playerController.IsJumping && isWaiting == false)
             {
                 animator.SetTrigger("jump");
                 isWaiting = true;
                 StopAllCoroutines();
                 StartCoroutine(ResetWaiting());
             }
-            animator.SetFloat("speed", playerInput.MovementInput.magnitude);
-            playerMovement.HandleGravity(playerInput.IsJumping);
-            playerMovement.Walk(playerInput.MovementInput, playerInput.RunningPressed);
+            animator.SetFloat("speed", playerController.MovementInput.magnitude);
+            playerMovement.HandleGravity(playerController.IsJumping);
+            playerMovement.Walk(playerController.MovementInput, playerController.RunningPressed);
 
 
         }

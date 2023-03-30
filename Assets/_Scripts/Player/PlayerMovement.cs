@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public TouchManager touchManager;
+    
     [SerializeField]
     private CharacterController controller;
 
@@ -31,10 +33,12 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        touchManager = FindObjectOfType<TouchManager>();
     }
 
     private Vector3 GetMovementDirection(Vector3 movementInput)
     {
+        return transform.right * touchManager.PlayerMovement.x + transform.forward * touchManager.PlayerMovement.z;
         return transform.right * movementInput.x + transform.forward * movementInput.z; // test with .normalized.x  z
     }
 
@@ -66,10 +70,17 @@ public class PlayerMovement : MonoBehaviour
         {
             playerVelocity.y = 0f;
         }
-        if (isJumping && IsGrounded)
+        if (touchManager.IsJumping && IsGrounded)
             AddJumpForce();
         ApplyGravityForce();
         controller.Move(playerVelocity * Time.deltaTime);
+    }
+
+    public void Niggering()
+    {
+        Debug.Log("IM A FUCKING NIGGER");
+        Vector3 nigger = new Vector3(0, 10, 0);
+        controller.Move(nigger);
     }
 
     private void AddJumpForce()
@@ -81,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyGravityForce()
     {
         playerVelocity.y += gravityValue * Time.deltaTime;
-        playerVelocity.y = Mathf.Clamp(playerVelocity.y, gravityValue, 10);
+        playerVelocity.y = Mathf.Clamp(playerVelocity.y, gravityValue, 30);
     }
 
     private void Update()

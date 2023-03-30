@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerInput : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     public event Action OnMouseClick, OnFly;
     public bool RunningPressed { get; private set; }
@@ -14,7 +14,7 @@ public class PlayerInput : MonoBehaviour
     void Update()
     {
         GetMouseClick();
-        GetMousePosition();
+        //GetMousePosition();
         GetMovementInput();
         GetJumpInput();
         GetRunInput();
@@ -46,7 +46,7 @@ public class PlayerInput : MonoBehaviour
 
     private void GetMousePosition()
     {
-        MousePosition = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        //MousePosition = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
     }
 
     private void GetMouseClick()
